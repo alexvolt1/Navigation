@@ -12,5 +12,7 @@ namespace NavigationWeb.Utility
         public const string ClientApiNavigationGroupsEdit = "api/NavigationGroups/Edit";
         public const string ClientApiSubMenus = "api/SubMenus";
 
+        public const string ErrorMessage = "Error Message";
+
     }
 }
