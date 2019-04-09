@@ -54,9 +54,9 @@ namespace NavigationWeb.Controllers
             {
                 return NotFound();
             }
-            IEnumerable<NavigationGroup> navigationGroups = null;
-            navigationGroups = JsonConvert.DeserializeObject<IEnumerable<NavigationGroup>>(res.Content.ReadAsStringAsync().Result);
-            NavigationGroup navigationGroup = navigationGroups.FirstOrDefault();
+
+            NavigationGroup navigationGroup = JsonConvert.DeserializeObject<NavigationGroup>(res.Content.ReadAsStringAsync().Result);
+
             if (navigationGroup == null)
             {
                 return NotFound();
@@ -83,8 +83,11 @@ namespace NavigationWeb.Controllers
                 var buffer = System.Text.Encoding.UTF8.GetBytes(myContent);
                 var byteContent = new ByteArrayContent(buffer);
                 byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                HttpResponseMessage res = await _client.PostAsync(SD.ClientApiNavigationGroups, byteContent);
-                return RedirectToAction(nameof(Index));
+                using (HttpResponseMessage res = await _client.PostAsync(SD.ClientApiNavigationGroups, byteContent))
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+                
             }
             return View(navigationGroup);
         }
@@ -93,12 +96,11 @@ namespace NavigationWeb.Controllers
         public async Task<IActionResult> Edit(string id)
         {
             HttpResponseMessage res = await _client.GetAsync(SD.ClientApiNavigationGroups + "/" + id);
-            NavigationGroup navigationGroup = null;
             if (id == null)
             {
                 return NotFound();
             }
-            navigationGroup = JsonConvert.DeserializeObject<NavigationGroup>(res.Content.ReadAsStringAsync().Result);
+            NavigationGroup navigationGroup = JsonConvert.DeserializeObject<NavigationGroup>(res.Content.ReadAsStringAsync().Result);
             if (navigationGroup == null)
             {
                 return NotFound();
@@ -123,23 +125,18 @@ namespace NavigationWeb.Controllers
                 var buffer = System.Text.Encoding.UTF8.GetBytes(myContent);
                 var byteContent = new ByteArrayContent(buffer);
                 byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                HttpResponseMessage res = await _client.PutAsync(SD.ClientApiNavigationGroups + "/" + id, byteContent);
+                using (HttpResponseMessage res = await _client.PutAsync(SD.ClientApiNavigationGroups + "/" + id, byteContent))
+                {
+                    return RedirectToAction(nameof(Index));
+                }
 
-                bool resSuccess = res.IsSuccessStatusCode;
-                var resReason = res.ReasonPhrase;
+                //bool resSuccess = res.IsSuccessStatusCode;
+                //var resReason = res.ReasonPhrase;
 
-                //return RedirectToAction(nameof(Index));
-
-                //return Error();
-                var notFoundResponse = new HttpResponseMessage(HttpStatusCode.NotFound);
-                //throw new ArgumentException("Data is null");
-                string errorMessage = "Message: 404 Not Found - from external API";
-                _log.LogError(errorMessage);
-                throw new ExternalException(errorMessage);
-
+                //string errorMessage = "Message: 404 Not Found - from external API";
+                //_log.LogError(errorMessage);
+               // throw new ExternalException(errorMessage);
             }
-
-
 
             return View(navigationGroup);
         }
@@ -148,12 +145,11 @@ namespace NavigationWeb.Controllers
         public async Task<IActionResult> Delete(string id)
         {
             HttpResponseMessage res = await _client.GetAsync(SD.ClientApiNavigationGroups + "/" + id);
-            NavigationGroup navigationGroup = null;
             if (id == null)
             {
                 return NotFound();
             }
-            navigationGroup = JsonConvert.DeserializeObject<NavigationGroup>(res.Content.ReadAsStringAsync().Result);
+            NavigationGroup navigationGroup = JsonConvert.DeserializeObject<NavigationGroup>(res.Content.ReadAsStringAsync().Result);
             if (navigationGroup == null)
             {
                 return NotFound();
@@ -166,8 +162,10 @@ namespace NavigationWeb.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            HttpResponseMessage res = await _client.DeleteAsync(SD.ClientApiNavigationGroups + "/" + id);
-            return RedirectToAction(nameof(Index));
+            using (HttpResponseMessage res = await _client.DeleteAsync(SD.ClientApiNavigationGroups + "/" + id))
+            {
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         //[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
